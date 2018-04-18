@@ -1,0 +1,67 @@
+#!/usr/bin/env python3
+
+from game import Game
+import sys
+import socket
+from threading import Thread
+import time
+
+
+
+HOST = ''   # Symbolic name meaning all available interfaces
+PORT = 8888 # Arbitrary non-privileged port
+
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+
+#Bind socket to local host and port
+try:
+    s.bind((HOST, PORT))
+except OSError as o:
+    print('Bind failed. Error Code[' + str(o.errno) + '] Message [' + o.strerror + ']' )
+    sys.exit()
+
+#Start listening on socket
+s.listen(10)
+
+def handleUser(conn,game):
+    game.auth(conn)
+    conn.close()
+
+class Net:
+    def __init__(self,conn):
+        self.conn = conn
+    def send(self,msg):
+        self.conn.send(bytearray(msg,'UTF-8'))
+    def recv(self):
+        s = self.conn.recv(512).decode('UTF-8',"ignore")
+        return(s)
+      
+    def close(self):
+            self.conn.close()
+
+def gameClock(game):
+    while game.ADMIN_RUNNING:
+        time.sleep(1)
+        game.step()
+    print("Clock thread shutting down\n")
+
+
+g= Game("game.db")
+
+tt = Thread(target=gameClock,args=(g,),name="Clock")
+tt.start()
+
+while g.ADMIN_RUNNING:
+    #wait to accept a connection - blocking call
+    conn, addr = s.accept()
+    print('Connected with ' + addr[0] + ':' + str(addr[1]))
+
+    #start new thread takes 1st argument as a function name to be run, second is the tuple of arguments to the function.
+    t = Thread(target=handleUser,args=(Net(conn),g))
+    t.start()
+g.save()
+s.close()
+
+
+
