@@ -3,7 +3,7 @@ import crypt
 import vt100
 import urllib.request, json 
 from hmac import compare_digest as compare_hash
-from tamagotchi import *
+from tochi import *
 
 class Game():
     actions = { 'L' : 'login',
@@ -36,7 +36,7 @@ class Game():
                 name varchar(255) primary key, 
                 password varchar(255)
             );
-            create table if not exists Tamagotchis(
+            create table if not exists Tochis(
                 name varchar(255),
                 owner varchar(255),
                 level integer,
@@ -67,7 +67,7 @@ class Game():
         
 
     def auth(self,net):
-        MENU = "\n Tamagotchi Server v1.0 \n"+\
+        MENU = "\n Tochi Server v1.0 \n"+\
                "\u2554"+"\u2550"*22 +"\u2557 \n"+\
                "\u2551 [L]ogin              \u2551\n"+\
                "\u2551 [C]reate account     \u2551\n"+\
@@ -178,7 +178,7 @@ class Game():
         self.conn.commit()
 
 class Player():
-    MENU = "| [C]reate tamagotchi\n"+\
+    MENU = "| [C]reate tochi\n"+\
            "| [U]pdate status\n"+\
            "| [F]eed\n"+\
            "| [P]lay\n"+\
@@ -271,7 +271,7 @@ class Player():
 
     def action_create(self,net,game):
         if self.tama == None:
-            self.tama = Tamagotchi(game.tick,self.name)
+            self.tama = Tochi(game.tick,self.name)
         
     def action_feed(self,net,game):
         if self.tama != None:
@@ -289,17 +289,17 @@ class Player():
         with urllib.request.urlopen("http://quandyfactory.com/insult/json") as url:
             data = json.loads(url.read().decode())
             net.send("\n"+data["insult"]+"\n")
-            net.send("The one with the heaviest, coolest and alive tamagotchi\n"+\
+            net.send("The one with the heaviest, coolest and alive tochi\n"+\
                       "at the end of the competition gets a flag.\n")
 
     def action_do_nothing(self,net,game):
         pass
 
     def load(self,db):
-        db.execute("SELECT * FROM Tamagotchis WHERE owner = ?",(self.name,))
+        db.execute("SELECT * FROM Tochis WHERE owner = ?",(self.name,))
         data = db.fetchone()
         if data != None:
-            self.tama = Tamagotchi(data['born'],data['owner'])
+            self.tama = Tochi(data['born'],data['owner'])
             self.tama.happiness.value = data['happiness']
             self.tama.lvl = data['level']
             self.tama.foodReserve.value = data['foodReserve']
@@ -319,11 +319,11 @@ class Player():
         else:
             db.execute("UPDATE Players set password = ? WHERE name = ?",(self.password,self.name,))
         if self.tama != None:
-            db.execute("SELECT * FROM Tamagotchis WHERE name = ?",(self.tama.name,))
+            db.execute("SELECT * FROM Tochis WHERE name = ?",(self.tama.name,))
             entry = db.fetchone()
             if entry == None:
                 db.execute("""
-                INSERT INTO Tamagotchis(name,owner,level,health,foodReserve,
+                INSERT INTO Tochis(name,owner,level,health,foodReserve,
                                         happiness,weight,gender,born,died)
                 VALUES (?,?,?,?,?,?,?,?,?,?)""",
                         (self.tama.name,self.name,self.tama.lvl,self.tama.health.value,self.tama.foodReserve.value,
@@ -332,7 +332,7 @@ class Player():
                 )
             else:
                 db.execute("""
-                    UPDATE Tamagotchis SET level=?, health=?,foodReserve=?,
+                    UPDATE Tochis SET level=?, health=?,foodReserve=?,
                         happiness=?,weight=?,died=?
                     WHERE name = ? """, 
                         (self.tama.lvl,self.tama.health.value,self.tama.foodReserve.value,
@@ -342,15 +342,15 @@ class Admin(Player):
     MENU = "[U]pdate status\n"+\
            "[S]hutdown server\n"+\
            "[L]ist users\n"+\
-           "[T]amagotchis\n"+\
+           "[T]ochis\n"+\
            "[O]ptions ...\n"+\
-           "[E]volve tamagotchi\n"+\
+           "[E]volve tochi\n"+\
            "[D]isconnect\n\n"+\
            "Choice:"
     actions = { 'U' : 'update',
                 'S' : 'shutdown',
                 'L' : 'list_users',
-                'T' : 'list_tamagotchis',
+                'T' : 'list_tochis',
                 'E' : 'evolve',
                 'O' : 'options',
                 'D' : 'disconnect'
@@ -368,8 +368,8 @@ class Admin(Player):
             net.send(l+"\n")
         net.send("\n")
 
-    def action_list_tamagotchis(self,net,game):
-        net.send("Tamagotchis\n----------------\n")
+    def action_list_tochis(self,net,game):
+        net.send("Tochis\n----------------\n")
         for l in game.players.values():
             net.send(l.name+"\t")
             if l.tama:

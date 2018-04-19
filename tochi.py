@@ -56,7 +56,7 @@ class Bar():
 
 
 
-class Tamagotchi():   
+class Tochi():   
     EVOLVE_RATE = 4      # Chance to evolve on weight gain 1/n
     FOOD_CONSUME_RATE   = (60*30)/20
     FOOD_CONSUME_AMOUNT = 5
@@ -314,7 +314,7 @@ if __name__ == "__main__":
             return ret
 
     tick = 0
-    tama = Tamagotchi(tick,"Johan")
+    tama = Tochi(tick,"Johan")
     keyb= Keyboard()
     key = ''
     while key!='q':
