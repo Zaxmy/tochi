@@ -1,6 +1,7 @@
 import sqlite3
-import crypt
+from passlib.hash import sha512_crypt
 import vt100
+from threading import Lock
 import urllib.request, json 
 from hmac import compare_digest as compare_hash
 from tochi import *
@@ -13,6 +14,7 @@ class Game():
     DB_VERSION = "1"
 
     def __init__(self,dbFile):
+        self.TIME_LOCK = Lock()
         self.ADMIN_RUNNING=True
         self.tick = 0
         self.players = {}
@@ -134,15 +136,18 @@ class Game():
        self.players[p.name.upper()].go(net,self)
  
     def step(self):
-            self.tick += 1
-            for p in self.players.values():
-                if p.tama != None:
-                    p.tama.tick(self.tick)
+        self.TIME_LOCK.acquire()
+        self.tick += 1
+        for p in self.players.values():
+            if p.tama != None:
+                p.tama.tick(self.tick)
+        self.TIME_LOCK.release()
 
     def quit(self,net,args):
         pass
 
     def load(self):
+        self.TIME_LOCK.acquire()
         self.db.execute("SELECT * FROM Players")
         res = self.db.fetchall()
         for (user,passwd) in res:
@@ -160,9 +165,11 @@ class Game():
         if res != None:
             self.tick = int(res['value'])
             print("Loaded server time [%d s]" % self.tick)
+        self.TIME_LOCK.release()
 
     def save(self):
         print("Saving game...")
+        self.TIME_LOCK.acquire()
         self.db.execute("SELECT value FROM Config WHERE name = 'time'")
         one = self.db.fetchone()
         if one != None:
@@ -176,6 +183,7 @@ class Game():
             pc += 1
         print("Saved %d players" % pc)
         self.conn.commit()
+        self.TIME_LOCK.release()
 
 class Player():
     MENU = "| [C]reate tochi\n"+\
@@ -214,12 +222,10 @@ class Player():
         self.tama=None
 
     def login(self,password):
-        if compare_hash(crypt.crypt(password,self.password),self.password):
-            return(True)
-        return(False)
-
+        return(sha512_crypt.verify(password,self.password))
+    
     def set_password(self,password):
-        self.password= crypt.crypt(password)
+        self.password= sha512_crypt.hash(password)
 
     def go(self,net,game):
         print("%s logged in" % self.name)
@@ -345,6 +351,7 @@ class Admin(Player):
            "[T]ochis\n"+\
            "[O]ptions ...\n"+\
            "[E]volve tochi\n"+\
+           "[G]ame save database\n"+\
            "[D]isconnect\n\n"+\
            "Choice:"
     actions = { 'U' : 'update',
@@ -353,6 +360,7 @@ class Admin(Player):
                 'T' : 'list_tochis',
                 'E' : 'evolve',
                 'O' : 'options',
+                'G' : 'save_game',
                 'D' : 'disconnect'
                 }
     DISCONNECT = ['D','S']
@@ -361,6 +369,11 @@ class Admin(Player):
         game.ADMIN_RUNNING = False
         net.send("Shutting down server\n\n")
         print("Admin called shutdown")
+    
+    def save_game(self,net,game):
+        net.send("Saving game to database...")
+        game.save()
+        net.send("Game saved")
 
     def action_list_users(self,net,game):
         net.send("Usernames\n----------------\n")
