@@ -142,8 +142,8 @@ class Tochi():
         self.born = tick
         self.died = -1
         self.lvl = 1
-        self.type = images.toshis.lvl[self.lvl]['type']
-        self.pic = images.toshis.lvl[self.lvl]['pic']
+        self.type = images.tochis.lvl[self.lvl]['type']
+        self.pic = images.tochis.lvl[self.lvl]['pic']
 
     def sprint(self,tick):
         age = self.age(tick)
@@ -183,8 +183,8 @@ class Tochi():
 
     def evolve(self):
          self.lvl += 1
-         self.type = images.toshis.lvl[self.lvl]['type']
-         self.pic = images.toshis.lvl[self.lvl]['pic']
+         self.type = images.tochis.lvl[self.lvl]['type']
+         self.pic = images.tochis.lvl[self.lvl]['pic']
 
     def save(self,fd):
         pass
