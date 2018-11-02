@@ -19,15 +19,15 @@ class ImageBank():
    def rescan(self):
       self.load(self.path)
 
-class TamaImage():
+class ToshiImage():
    def __init__(self,imagebank):
       self.lvl = {}
       # tama_##_name.txt
-      tamas = [k for k in imagebank.keys() if re.match('tama_\d\d_.+',k) ]      
-      for t in tamas:
+      toshis = [k for k in imagebank.keys() if re.match(r'toshi_\d\d_.+',k) ]
+      for t in toshis:
          self.lvl[int(t[5:7])]={'pic':imagebank[t],'type':t[8:]}
       
 
 pics = ImageBank('images')
-tamas = TamaImage(pics.pic)
+toshis = ToshiImage(pics.pic)
 

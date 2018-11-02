@@ -142,8 +142,8 @@ class Tochi():
         self.born = tick
         self.died = -1
         self.lvl = 1
-        self.type = images.tamas.lvl[self.lvl]['type']
-        self.pic = images.tamas.lvl[self.lvl]['pic']
+        self.type = images.toshis.lvl[self.lvl]['type']
+        self.pic = images.toshis.lvl[self.lvl]['pic']
 
     def sprint(self,tick):
         age = self.age(tick)
@@ -183,8 +183,8 @@ class Tochi():
 
     def evolve(self):
          self.lvl += 1
-         self.type = images.tamas.lvl[self.lvl]['type']
-         self.pic = images.tamas.lvl[self.lvl]['pic']
+         self.type = images.toshis.lvl[self.lvl]['type']
+         self.pic = images.toshis.lvl[self.lvl]['pic']
 
     def save(self,fd):
         pass
@@ -267,7 +267,8 @@ class Tochi():
         if self.health.comp(100) and self.foodReserve.comp(50) and\
                 age % self.GROW_RATE == 0:
                     self.weight += self.GROW_AMOUNT
-                    if rand.randint(1,self.EVOLVE_RATE) == 1:
+                    # Gets harder and harder to evolve
+                    if rand.randint(1,self.EVOLVE_RATE + self.lvl >> 1) == 1:
                        self.evolve()
         return
 
