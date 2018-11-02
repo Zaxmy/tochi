@@ -25,7 +25,7 @@ class TochiImage():
       # tama_##_name.txt
       tochis = [k for k in imagebank.keys() if re.match(r'tochi_\d\d_.+',k) ]
       for t in tochis:
-         self.lvl[int(t[5:7])]={'pic':imagebank[t],'type':t[8:]}
+         self.lvl[int(t[7:8])]={'pic':imagebank[t],'type':t[10:]}
       
 
 pics = ImageBank('images')

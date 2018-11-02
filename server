@@ -4,7 +4,6 @@ from game import Game
 import sys
 import socket
 from threading import Thread
-import time
 
 
 
@@ -40,17 +39,8 @@ class Net:
     def close(self):
             self.conn.close()
 
-def gameClock(game):
-    while game.ADMIN_RUNNING:
-        time.sleep(1)
-        game.step()
-    print("Clock thread shutting down\n")
-
 
 g= Game("game.db")
-
-tt = Thread(target=gameClock,args=(g,),name="Clock")
-tt.start()
 
 while g.ADMIN_RUNNING:
     #wait to accept a connection - blocking call
@@ -60,7 +50,7 @@ while g.ADMIN_RUNNING:
     #start new thread takes 1st argument as a function name to be run, second is the tuple of arguments to the function.
     t = Thread(target=handleUser,args=(Net(conn),g))
     t.start()
-g.save()
+
 s.close()
 
 

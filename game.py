@@ -1,7 +1,8 @@
 import sqlite3
 from passlib.hash import sha512_crypt
 import vt100
-from threading import Lock
+from threading import Lock, Thread
+import time
 import urllib.request, json 
 from hmac import compare_digest as compare_hash
 from tochi import *
@@ -16,17 +17,31 @@ class Game():
     def __init__(self,dbFile):
         self.TIME_LOCK = Lock()
         self.ADMIN_RUNNING=True
+        self.REQUEST_SAVE=False
         self.tick = 0
         self.players = {}
+        self.dbFile = dbFile
+        self.gameTicker = Thread(target=self.gameClock,name="Clock")
+        self.gameTicker.start()
+        
+    def gameClock(self):
         a = Admin()
         a.name="ADMIN"
         a.set_password("Syp9393")
         self.players[a.name] = a
-        self.conn = sqlite3.connect(dbFile)
+        self.conn = sqlite3.connect(self.dbFile)
         self.conn.row_factory = sqlite3.Row
         self.db = self.conn.cursor()
         self.db_init()
         self.load()
+        while self.ADMIN_RUNNING:
+            time.sleep(1)
+            self.step()
+            if self.REQUEST_SAVE:
+                self.REQUEST_SAVE = False
+                self.save()
+        self.save()
+        print("Clock thread shutting down\n")
 
     def db_init(self):
         self.db.executescript("""
@@ -314,8 +329,8 @@ class Player():
             self.tama.health.value = data['health']
             self.tama.gender = data['gender']
             self.tama.name = data['name']
-            self.tama.type = images.tamas.lvl[data['level']]['type']
-            self.tama.pic = images.tamas.lvl[data['level']]['pic']
+            self.tama.type = images.tochis.lvl[data['level']]['type']
+            self.tama.pic = images.tochis.lvl[data['level']]['pic']
 
     def save(self,db):
         db.execute("SELECT name FROM Players WHERE name = ?",(self.name,))
@@ -370,10 +385,10 @@ class Admin(Player):
         net.send("Shutting down server\n\n")
         print("Admin called shutdown")
     
-    def save_game(self,net,game):
-        net.send("Saving game to database...")
-        game.save()
-        net.send("Game saved")
+    def action_save_game(self,net,game):
+        net.send("Requesting save game...")
+        print("Admin user requested game save")
+        game.REQUEST_SAVE = True
 
     def action_list_users(self,net,game):
         net.send("Usernames\n----------------\n")
@@ -394,7 +409,8 @@ class Admin(Player):
         pass
     def action_update(self,net,game):
         pass
-
+    def action_disconnect(self,net,game):
+        pass
 
 
 
