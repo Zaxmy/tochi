@@ -25,9 +25,16 @@ class TochiImage():
       # tama_##_name.txt
       tochis = [k for k in imagebank.keys() if re.match(r'tochi_\d\d_.+',k) ]
       for t in tochis:
-         self.lvl[int(t[7:8])]={'pic':imagebank[t],'type':t[10:]}
+         #print("Lvl %2d - %s " % (int(t[6:8]),t[9:]))
+         try:
+            self.lvl[int(t[6:7])]={'pic':imagebank[t],'type':t[9:]}
+         except ValueError:
+            print("Tochi image name wrong format [%s] not in form tochi_\\d\\d_.+ "%(t))
+            exit()
+      
       
 
 pics = ImageBank('images')
 tochis = TochiImage(pics.pic)
 
+# vim: set sw=3 expandtab ts=3

@@ -183,8 +183,9 @@ class Tochi():
 
     def evolve(self):
          self.lvl += 1
-         self.type = images.tochis.lvl[self.lvl]['type']
-         self.pic = images.tochis.lvl[self.lvl]['pic']
+         if self.lvl in images.tochis.lvl.keys():
+            self.type = images.tochis.lvl[self.lvl]['type']
+            self.pic = images.tochis.lvl[self.lvl]['pic']
 
     def save(self,fd):
         pass

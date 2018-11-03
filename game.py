@@ -1,4 +1,4 @@
-import sqlite3
+import sqlite3, socket
 from passlib.hash import sha512_crypt
 import vt100
 from threading import Lock, Thread
@@ -329,6 +329,7 @@ class Player():
             self.tama.health.value = data['health']
             self.tama.gender = data['gender']
             self.tama.name = data['name']
+            # FIXME tochis can evolve beyond available levels
             self.tama.type = images.tochis.lvl[data['level']]['type']
             self.tama.pic = images.tochis.lvl[data['level']]['pic']
 
@@ -384,6 +385,7 @@ class Admin(Player):
         game.ADMIN_RUNNING = False
         net.send("Shutting down server\n\n")
         print("Admin called shutdown")
+
     
     def action_save_game(self,net,game):
         net.send("Requesting save game...")
@@ -412,5 +414,4 @@ class Admin(Player):
     def action_disconnect(self,net,game):
         pass
 
-
-
+# vim: set sw=3 expandtab ts=3
