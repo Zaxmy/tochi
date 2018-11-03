@@ -2,7 +2,6 @@ from os import listdir
 from os.path import isfile, join
 import re
 
-
 class ImageBank():
    def __init__(self,path):
       self.pic = {} 
@@ -31,8 +30,6 @@ class TochiImage():
          except ValueError:
             print("Tochi image name wrong format [%s] not in form tochi_\\d\\d_.+ "%(t))
             exit()
-      
-      
 
 pics = ImageBank('images')
 tochis = TochiImage(pics.pic)

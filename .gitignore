@@ -1,0 +1,4 @@
+ssl.crt
+ssl.key
+game.db
+__pycache__

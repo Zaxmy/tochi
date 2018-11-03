@@ -61,10 +61,8 @@ class Net:
     def recv(self):
         s = self.conn.recv(512).decode('UTF-8',"ignore")
         return(s)
-      
     def close(self):
             self.conn.close()
-
 
 g= Game("game.db")
 
@@ -78,5 +76,4 @@ while g.ADMIN_RUNNING:
 
 s.close()
 
-
-
+# vim: set sw=4 expandtab ts=4

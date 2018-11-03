@@ -386,7 +386,6 @@ class Admin(Player):
         net.send("Shutting down server\n\n")
         print("Admin called shutdown")
 
-    
     def action_save_game(self,net,game):
         net.send("Requesting save game...")
         print("Admin user requested game save")
